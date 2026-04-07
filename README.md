@@ -27,5 +27,7 @@ This library generates readonly fields for the values passed to `AsStringName()`
 The calls to those methods are then [intercepted](https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md) to simply read the readonly field.
 
 This library also warns whenever you implicitly or explicitly cast a `string` to a `StringName`/`NodePath`.
+You should use `new StringName()`/`new NodePath()` instead to explicitly allocate a new object.
+The warnings are disabled for code in an `addons` folder.
 
 See the [proposal](https://github.com/godotengine/godot-proposals/discussions/10826) for more info.

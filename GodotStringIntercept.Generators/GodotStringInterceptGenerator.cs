@@ -1,12 +1,15 @@
 #pragma warning disable RSEXPERIMENTAL002 // InterceptableLocation API is experimental but stable enough for our use
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace GodotStringIntercept.Generators;
 
@@ -82,7 +85,7 @@ public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
         IncrementalValuesProvider<InterceptableCallSiteInfo> interceptableCallSites = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, _) => IsInterceptableMethodCall(node),
-                transform: static (ctx, ct) => TryGetCallSiteInfo(ctx, ct))
+                transform: static (ctx, ct) => TryGetInterceptableCallSiteInfo(ctx, ct))
             .Where(static info => info is not null)
             .Select(static (info, _) => info!);
 
@@ -92,7 +95,7 @@ public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
             static (spc, sites) => GenerateSource(spc, sites));
 
         // Find casts from string to StringName/NodePath
-        IncrementalValuesProvider<Location> implicitConversionLocations = context.SyntaxProvider
+        IncrementalValuesProvider<Location> castLocations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (node, ct) => node is ArgumentSyntax,
                 transform: static (ctx, ct) => TryGetCastLocation(ctx, ct))
@@ -101,7 +104,7 @@ public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
 
         // Warn for each cast from string to StringName/NodePath
         context.RegisterSourceOutput(
-            implicitConversionLocations.Collect(),
+            castLocations.Collect(),
             static (spc, locations) => {
                 foreach (Location location in locations) {
                     spc.ReportDiagnostic(Diagnostic.Create(Diagnostics.CastFromString, location));
@@ -130,7 +133,7 @@ public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
     // Pipeline transform — semantic model available
     // -----------------------------------------------------------------------
 
-    private static InterceptableCallSiteInfo? TryGetCallSiteInfo(GeneratorSyntaxContext context, System.Threading.CancellationToken cancellationToken) {
+    private static InterceptableCallSiteInfo? TryGetInterceptableCallSiteInfo(GeneratorSyntaxContext context, System.Threading.CancellationToken cancellationToken) {
         InvocationExpressionSyntax invocation = (InvocationExpressionSyntax)context.Node;
         SemanticModel semanticModel = context.SemanticModel;
 
@@ -201,6 +204,16 @@ public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
             return null;
         }
         if (conversionOp.Type?.Name is not ("StringName" or "NodePath")) {
+            return null;
+        }
+
+        // Check whether cast is in addons folder
+        string? argumentFilePath = context.Node.GetLocation()?.SourceTree?.FilePath;
+        bool isInAddonsFolder = argumentFilePath is not null && argumentFilePath
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Any(part => part.Equals("addons", StringComparison.OrdinalIgnoreCase));
+        // Ignore casts in addons folder
+        if (isInAddonsFolder) {
             return null;
         }
 

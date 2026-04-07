@@ -17,6 +17,6 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <InterceptorsNamespaces>$(InterceptorsNamespaces);GodotInterceptors</InterceptorsNamespaces>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);GodotStringIntercept.Interceptors</InterceptorsNamespaces>
     </PropertyGroup>
 </Project>

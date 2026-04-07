@@ -17,7 +17,7 @@ Input.IsActionPressed("move_forward".AsStringName());
 You must add the following to your `.csproj` file:
 ```csproj
 <PropertyGroup>
-    <InterceptorsNamespaces>$(InterceptorsNamespaces);GodotInterceptors</InterceptorsNamespaces>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);GodotStringIntercept.Interceptors</InterceptorsNamespaces>
 </PropertyGroup>
 ```
 

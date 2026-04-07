@@ -12,11 +12,6 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <IsAotCompatible>True</IsAotCompatible>
-        <IsTrimmable>True</IsTrimmable>
-    </PropertyGroup>
-
-    <PropertyGroup>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>

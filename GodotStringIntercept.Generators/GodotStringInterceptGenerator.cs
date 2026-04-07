@@ -76,7 +76,7 @@ internal static class Diagnostics {
 // ---------------------------------------------------------------------------
 
 [Generator(LanguageNames.CSharp)]
-public sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
+internal sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
     /// <summary>
     /// Runs the generator.
     /// </summary>

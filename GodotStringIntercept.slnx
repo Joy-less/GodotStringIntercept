@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE.md" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="GodotStringIntercept/GodotStringIntercept.csproj" />
   <Project Path="GodotStringIntercept.Generators/GodotStringIntercept.Generators.csproj" />
   <Project Path="Playground/Playground.csproj" />

@@ -12,6 +12,13 @@ Input.IsActionPressed("move_forward");
 Input.IsActionPressed("move_forward".AsStringName());
 ```
 
+You must add the following to your `.csproj` file:
+```csproj
+<PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);GodotInterceptors</InterceptorsNamespaces>
+</PropertyGroup>
+```
+
 ## How?
 
 This library generates readonly fields for the values passed to `AsStringName()`/`AsNodePath()`.

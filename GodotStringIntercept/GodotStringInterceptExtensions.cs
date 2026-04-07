@@ -2,6 +2,9 @@ using Godot;
 
 namespace GodotStringIntercept;
 
+/// <summary>
+/// Contains extension methods for allocation-free string to StringName/NodePath conversions.
+/// </summary>
 public static class GodotStringInterceptExtensions {
     /// <summary>
     /// Returns a <see cref="StringName"/> created from the given string.

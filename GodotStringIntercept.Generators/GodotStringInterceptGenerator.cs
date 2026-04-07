@@ -322,8 +322,8 @@ namespace System.Runtime.CompilerServices
         int methodIndex = 0;
         foreach (List<InterceptableCallSiteInfo> interceptableCallSites in groups.Values) {
             string cachedFieldValue = interceptableCallSites[0].ConstantStringValue!;
-            (string FullName, string Name) cachedTargetType = interceptableCallSites[0].TargetType;
-            string cachedFieldName = GetFieldNameForStringValue(cachedFieldValue, cachedTargetType.Name);
+            (string cachedTargetTypeFullName, string cachedTargetTypeName) = interceptableCallSites[0].TargetType;
+            string cachedFieldName = GetFieldNameForStringValue(cachedFieldValue, cachedTargetTypeName);
 
             // Emit one [InterceptsLocation] per call site in this group
             foreach (InterceptableCallSiteInfo interceptableCallSite in interceptableCallSites) {
@@ -332,7 +332,7 @@ namespace System.Runtime.CompilerServices
 
             // Emit interceptor method
             // (Note: interceptor signature must exactly match interceptable method)
-            sb.AppendLine($"    internal static {cachedTargetType.FullName} Intercept_{methodIndex++}(this string str)");
+            sb.AppendLine($"    internal static {cachedTargetTypeFullName} Intercept_{methodIndex++}(this string str)");
             sb.AppendLine("    {");
             sb.AppendLine($"        return GodotStringIntercept.Generators.GodotStringInterceptCache.{cachedFieldName};");
             sb.AppendLine("    }");

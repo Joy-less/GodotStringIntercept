@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="GodotStringIntercept/GodotStringIntercept.csproj" />
+  <Project Path="GodotStringIntercept.Generators/GodotStringIntercept.Generators.csproj" />
+  <Project Path="Playground/Playground.csproj" />
+</Solution>

@@ -1,5 +1,7 @@
 # Godot String Intercept
 
+[![NuGet](https://img.shields.io/nuget/v/GodotStringIntercept.svg)](https://www.nuget.org/packages/GodotStringIntercept)
+
 Generates `StringName`s/`NodePath`s for Godot 4.
 
 ## Usage

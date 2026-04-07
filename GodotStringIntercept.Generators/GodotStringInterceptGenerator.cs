@@ -20,13 +20,13 @@ namespace GodotStringIntercept.Generators;
 /// <summary>
 /// All data needed to generate one interceptor, captured from the syntax/semantic pipeline.
 /// </summary>
-internal sealed class InterceptableCallSiteInfo(InterceptableLocation interceptableLocation, (string FullName, string Name) targetType, string? stringValue, Location? argumentLocation) {
+internal sealed class InterceptableCallSiteInfo(InterceptableLocation interceptableLocation, (string FullName, string Name) targetType, string? stringValue, Location? argumentLocation) : IEquatable<InterceptableCallSiteInfo> {
     /// <summary>
     /// An opaque location token produced by <c>GetInterceptableLocation</c>.
     /// </summary>
     public InterceptableLocation InterceptableLocation { get; } = interceptableLocation;
     /// <summary>
-    /// The full name of the type to convert the string to.
+    /// The type to convert the string to.
     /// </summary>
     public (string FullName, string Name) TargetType { get; } = targetType;
     /// <summary>
@@ -37,6 +37,13 @@ internal sealed class InterceptableCallSiteInfo(InterceptableLocation intercepta
     /// The location of the argument expression for <see cref="ConstantStringValue"/>, used for the diagnostic.
     /// </summary>
     public Location? ArgumentLocation { get; } = argumentLocation;
+
+    // Implement equality methods to avoid cache misses
+    public bool Equals(InterceptableCallSiteInfo? other) {
+        return other is not null && InterceptableLocation.Equals(other.InterceptableLocation);
+    }
+    public override bool Equals(object? obj) => Equals(obj as InterceptableCallSiteInfo);
+    public override int GetHashCode() => InterceptableLocation.GetHashCode();
 }
 
 // ---------------------------------------------------------------------------
@@ -81,19 +88,6 @@ internal sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
     /// Runs the generator.
     /// </summary>
     public void Initialize(IncrementalGeneratorInitializationContext context) {
-        // Find interceptable call sites
-        IncrementalValuesProvider<InterceptableCallSiteInfo> interceptableCallSites = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                predicate: static (node, _) => IsInterceptableMethodCall(node),
-                transform: static (ctx, ct) => TryGetInterceptableCallSiteInfo(ctx, ct))
-            .Where(static info => info is not null)
-            .Select(static (info, _) => info!);
-
-        // Generate interceptors for each interceptable call site
-        context.RegisterSourceOutput(
-            interceptableCallSites.Collect(),
-            static (spc, sites) => GenerateSource(spc, sites));
-
         // Find casts from string to StringName/NodePath
         IncrementalValuesProvider<Location> castLocations = context.SyntaxProvider
             .CreateSyntaxProvider(
@@ -110,6 +104,21 @@ internal sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
                     spc.ReportDiagnostic(Diagnostic.Create(Diagnostics.CastFromString, location));
                 }
             }
+        );
+
+        // Find interceptable call sites
+        IncrementalValuesProvider<InterceptableCallSiteInfo> interceptableCallSites = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                predicate: static (node, _) => IsInterceptableMethodCall(node),
+                transform: static (ctx, ct) => TryGetInterceptableCallSiteInfo(ctx, ct)
+            )
+            .Where(static info => info is not null)
+            .Select(static (info, _) => info!);
+
+        // Generate interceptors for each interceptable call site
+        context.RegisterSourceOutput(
+            interceptableCallSites.Collect(),
+            static (spc, sites) => GenerateSource(spc, sites)
         );
     }
 
@@ -138,8 +147,9 @@ internal sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
         SemanticModel semanticModel = context.SemanticModel;
 
         // Get IInvocationOperation from InvocationExpressionSyntax
-        if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation invocationOp)
+        if (semanticModel.GetOperation(invocation, cancellationToken) is not IInvocationOperation invocationOp) {
             return null;
+        }
 
         IMethodSymbol method = invocationOp.TargetMethod;
 
@@ -190,8 +200,9 @@ internal sealed class GodotStringInterceptGenerator : IIncrementalGenerator {
         SemanticModel semanticModel = context.SemanticModel;
 
         // Get IArgumentOperation from ArgumentSyntax
-        if (semanticModel.GetOperation(context.Node, cancellationToken) is not IArgumentOperation argumentOp)
+        if (semanticModel.GetOperation(context.Node, cancellationToken) is not IArgumentOperation argumentOp) {
             return null;
+        }
 
         // Ensure casting from 'string' to 'StringName'/'NodePath'
         if (argumentOp.Value is not IConversionOperation conversionOp) {

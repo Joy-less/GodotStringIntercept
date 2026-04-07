@@ -2,7 +2,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/GodotStringIntercept.svg)](https://www.nuget.org/packages/GodotStringIntercept)
 
-Generates `StringName`s/`NodePath`s for Godot 4.
+Generators for `StringName` and `NodePath` in Godot 4.
 
 ## Usage
 
@@ -26,4 +26,6 @@ You must add the following to your `.csproj` file:
 This library generates readonly fields for the values passed to `AsStringName()`/`AsNodePath()`.
 The calls to those methods are then [intercepted](https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md) to simply read the readonly field.
 
-More info: https://github.com/godotengine/godot-proposals/discussions/10826
+This library also warns whenever you implicitly or explicitly cast a `string` to a `StringName`/`NodePath`.
+
+See the [proposal](https://github.com/godotengine/godot-proposals/discussions/10826) for more info.

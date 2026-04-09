@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Only include the project folders when downloading from the Asset Library.
+/**                                 export-ignore
+/GodotStringIntercept               !export-ignore
+/GodotStringIntercept/**            !export-ignore
+/GodotStringIntercept.Generators    !export-ignore
+/GodotStringIntercept.Generators/** !export-ignore

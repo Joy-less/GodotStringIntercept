@@ -314,11 +314,10 @@ namespace System.Runtime.CompilerServices
             string cachedFieldName = GetFieldNameForStringValue(cachedFieldValue, targetType.Name);
 
             sb.AppendLine($"    internal static readonly {targetType.FullName} {cachedFieldName} = new({SymbolDisplay.FormatLiteral(cachedFieldValue, true)});");
-            sb.AppendLine();
         }
 
         sb.AppendLine("}");
-        context.AddSource("StringNameCache.g.cs", sb.ToString());
+        context.AddSource("GodotStringInterceptCache.g.cs", sb.ToString());
     }
 
     private static void GenerateInterceptors(SourceProductionContext context, List<InterceptableCallSiteInfo> constantInterceptableCallSites) {
@@ -328,7 +327,7 @@ namespace System.Runtime.CompilerServices
         sb.AppendLine();
         sb.AppendLine("namespace GodotStringIntercept.Interceptors;");
         sb.AppendLine();
-        sb.AppendLine("file static class StringNameCacheInterceptors");
+        sb.AppendLine("file static class GodotStringInterceptInterceptors");
         sb.AppendLine("{");
 
         // Group call sites that share the same constant string value and target type
@@ -364,7 +363,7 @@ namespace System.Runtime.CompilerServices
         }
 
         sb.AppendLine("}");
-        context.AddSource("StringNameInterceptors.g.cs", sb.ToString());
+        context.AddSource("GodotStringInterceptInterceptors.g.cs", sb.ToString());
     }
 
     // -----------------------------------------------------------------------

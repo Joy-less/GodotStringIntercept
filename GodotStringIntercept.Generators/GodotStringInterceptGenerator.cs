@@ -371,9 +371,12 @@ namespace System.Runtime.CompilerServices
     // -----------------------------------------------------------------------
 
     private static string GetFieldNameForStringValue(string stringValue, string targetTypeName) {
-        StringBuilder sb = new(targetTypeName + "_");
-        foreach (char ch in stringValue) {
-            sb.Append(SyntaxFacts.IsIdentifierPartCharacter(ch) ? ch : '_');
+        return targetTypeName + "_" + ToBase16String(stringValue);
+    }
+    private static string ToBase16String(string input) {
+        StringBuilder sb = new(capacity: input.Length);
+        foreach (byte utf8Byte in Encoding.UTF8.GetBytes(input)) {
+            sb.Append(utf8Byte.ToString("X2"));
         }
         return sb.ToString();
     }
